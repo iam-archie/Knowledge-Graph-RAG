@@ -1,0 +1,167 @@
+CloudStore API Documentation
+============================
+
+1. Introduction
+---------------
+CloudStore is a cloud-based file storage and sharing platform. This document describes the core services and their relationships.
+
+2. Core Services
+----------------
+
+2.1 AuthenticationService
+The AuthenticationService handles user login, logout, and token management. It integrates with the UserManager to validate user credentials and with the SessionManager to create and manage user sessions.
+
+Key methods:
+- login(username, password) -> Returns authentication token
+- logout(token) -> Invalidates the session
+- validateToken(token) -> Checks if token is valid
+- refreshToken(token) -> Returns new token
+
+The AuthenticationService depends on:
+- UserManager: For credential validation
+- SessionManager: For session creation
+- TokenGenerator: For creating secure tokens
+
+2.2 UserManager
+The UserManager handles all user-related operations including registration, profile updates, and user queries. It works closely with the AuthenticationService for security.
+
+Key methods:
+- createUser(userData) -> Creates new user account
+- updateUser(userId, userData) -> Updates user profile
+- getUser(userId) -> Returns user information
+- deleteUser(userId) -> Removes user account
+- listUsers(filters) -> Returns filtered user list
+
+The UserManager depends on:
+- DatabaseService: For data persistence
+- ValidationService: For input validation
+- NotificationService: For sending welcome emails
+
+2.3 FileManager
+The FileManager is the central service for file operations. It handles file uploads, downloads, deletions, and metadata management.
+
+Key methods:
+- uploadFile(file, userId, folderId) -> Uploads file to storage
+- downloadFile(fileId, userId) -> Downloads file
+- deleteFile(fileId, userId) -> Deletes file
+- getFileInfo(fileId) -> Returns file metadata
+- moveFile(fileId, newFolderId) -> Moves file to different folder
+- copyFile(fileId, destinationFolderId) -> Creates file copy
+
+The FileManager depends on:
+- StorageManager: For actual file storage
+- PermissionManager: For access control
+- QuotaManager: For storage limits
+- IndexService: For search indexing
+
+2.4 StorageManager
+The StorageManager handles the physical storage of files across multiple cloud providers. It manages redundancy and ensures data durability.
+
+Key features:
+- Multi-cloud storage support (AWS S3, Google Cloud Storage, Azure Blob)
+- Automatic redundancy across regions
+- Data encryption at rest
+- Compression for storage optimization
+
+The StorageManager interacts with:
+- FileManager: Receives storage requests
+- QuotaManager: Reports storage usage
+- BackupService: For scheduled backups
+
+2.5 PermissionManager
+The PermissionManager controls access to files and folders. It supports role-based access control and fine-grained permissions.
+
+Permission levels:
+- READ: Can view file content
+- WRITE: Can modify file content
+- DELETE: Can remove files
+- SHARE: Can share files with others
+- ADMIN: Full control including permission management
+
+The PermissionManager depends on:
+- UserManager: For user information
+- GroupManager: For group-based permissions
+- AuditService: For logging access attempts
+
+2.6 QuotaManager
+The QuotaManager tracks and enforces storage limits for users and organizations.
+
+Key methods:
+- getQuota(userId) -> Returns current quota usage
+- setQuota(userId, limit) -> Sets quota limit
+- checkQuota(userId, fileSize) -> Checks if upload is allowed
+- getQuotaWarnings() -> Returns users near quota limit
+
+The QuotaManager interacts with:
+- StorageManager: Gets actual storage usage
+- BillingService: For overage charges
+- NotificationService: For quota warnings
+
+3. Supporting Services
+----------------------
+
+3.1 SearchService
+The SearchService provides full-text search across files and folders. It uses the IndexService for fast queries.
+
+Key features:
+- Full-text search in documents
+- Metadata search (filename, date, type)
+- Permission-aware results
+- Search suggestions
+
+The SearchService depends on:
+- IndexService: For search indexing
+- PermissionManager: For filtering results
+- FileManager: For file metadata
+
+3.2 ShareService
+The ShareService manages file and folder sharing between users.
+
+Key methods:
+- createShareLink(fileId, options) -> Creates shareable link
+- revokeShareLink(linkId) -> Disables share link
+- shareWithUser(fileId, userId, permission) -> Direct user share
+- getSharedFiles(userId) -> Returns files shared with user
+
+The ShareService depends on:
+- PermissionManager: For setting access rights
+- NotificationService: For share notifications
+- LinkManager: For generating secure links
+
+3.3 NotificationService
+The NotificationService handles all system notifications including emails, push notifications, and in-app alerts.
+
+Notification types:
+- Share notifications (when files are shared)
+- Quota warnings (when nearing storage limit)
+- Security alerts (suspicious login attempts)
+- Collaboration updates (file comments, edits)
+
+The NotificationService integrates with:
+- EmailService: For email delivery
+- PushService: For mobile notifications
+- UserManager: For notification preferences
+
+4. File Upload Workflow
+-----------------------
+The complete file upload process involves multiple services:
+
+1. User initiates upload through API
+2. AuthenticationService validates the user token
+3. QuotaManager checks if user has sufficient storage
+4. FileManager receives the file data
+5. StorageManager stores the file in cloud storage
+6. IndexService indexes the file for search
+7. PermissionManager sets default permissions
+8. NotificationService notifies collaborators (if shared folder)
+
+5. Security Considerations
+--------------------------
+All services implement security best practices:
+- All API calls require authentication tokens
+- Sensitive data is encrypted in transit (TLS) and at rest
+- Regular security audits and penetration testing
+- Rate limiting on all public endpoints
+- Comprehensive audit logging
+
+End of Documentation
