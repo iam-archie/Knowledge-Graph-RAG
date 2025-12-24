@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Knowledge-Graph-RAG
-Knowledge-Graph-RAG — A hybrid Retrieval-Augmented Generation framework that combines LLMs with knowledge graphs to deliver more accurate, context-aware, and explainable answers
-=======
 # Knowledge Graph vs Traditional RAG Demo
 
 A comprehensive demonstration comparing Traditional RAG (Retrieval-Augmented Generation) with Knowledge Graph-based RAG using LangChain, Graphiti, and Neo4j.
@@ -429,4 +425,3 @@ After running this demo:
 ---
 
 **Happy Demoing!** Show the world the power of Knowledge Graphs!
->>>>>>> 6db7aba (Initial project commit)
